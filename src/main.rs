@@ -1,4 +1,4 @@
-use std::{io, sync::Arc};
+use std::{str, io, sync::Arc};
 use clap::{App, Arg};
 use std::net::{SocketAddrV4, Ipv4Addr};
 use tokio::time::{Duration, sleep};
@@ -57,15 +57,6 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let s = r.clone();
     let mut buf = [0; 1024];
 
-    /*
-    tokio::spawn(async move {
-        while let data = fake_clipboard_events().await.unwrap() {
-            let len = s.send_to(&String::as_bytes(&data), &addr).await.unwrap();
-            println!("{:?} => {:?} bytes sent", data, len);
-        }
-    });
-    */
-
     tokio::spawn(async move {
         loop {
             let data = fake_clipboard_events().await.unwrap();
@@ -76,7 +67,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     loop {
         let (len, addr) = r.recv_from(&mut buf).await?;
-        println!("{:?} bytes received from {:?}", len, addr);
+        let data = str::from_utf8(&buf).unwrap();
+        println!("{:?} => {:?} bytes received from {:?}", &data[0 .. len], len, addr);
         // escribir en el portapapeles
     }
 }
