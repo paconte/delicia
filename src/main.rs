@@ -57,8 +57,18 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let s = r.clone();
     let mut buf = [0; 1024];
 
+    /*
     tokio::spawn(async move {
         while let data = fake_clipboard_events().await.unwrap() {
+            let len = s.send_to(&String::as_bytes(&data), &addr).await.unwrap();
+            println!("{:?} => {:?} bytes sent", data, len);
+        }
+    });
+    */
+
+    tokio::spawn(async move {
+        loop {
+            let data = fake_clipboard_events().await.unwrap();
             let len = s.send_to(&String::as_bytes(&data), &addr).await.unwrap();
             println!("{:?} => {:?} bytes sent", data, len);
         }
